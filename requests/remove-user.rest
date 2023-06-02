@@ -1,1 +1,1 @@
-DELETE http://localhost:3001/api/persons/6
+DELETE https://green-butterfly-628.fly.dev/api/persons/6
