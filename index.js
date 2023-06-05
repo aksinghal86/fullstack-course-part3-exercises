@@ -1,10 +1,12 @@
-// https://fullstackopen.com/en/part3/node_js_and_express#exercises-3-1-3-6
-// Exercises 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8
+// https://fullstackopen.com/en/part3/saving_data_to_mongo_db#connecting-the-backend-to-a-database
+// Exercises 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 3.11, 3.12, 3.13, 3.14
 
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors') 
+require('dotenv').config()
 
+const Person = require('./models/person')
 const app = express()
 
 const unknownEndpoint = (request, response) => {
@@ -18,26 +20,6 @@ app.use(cors())
 app.use(express.static('build'))
 
 let persons = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
 ]
 
 app.get('/info', (request, response) => { 
@@ -52,37 +34,30 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-    return response.json(persons)
+    Person.find({}).then(persons => { 
+        return response.json(persons)
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => { 
-    const id = Number(request.params.id)
-    const person = persons.find(person => person.id === id)
-
-    if (person) { 
-        return response.json(person)
-    } else { 
-        response.statusMessage = 'Person not found.'
-        return response.status(404).end()
-    }
+    Person.findById(request.params.id)
+        .then(person => {
+            return response.json(person)
+        })
+        .catch(error => {
+            console.log('error 404', error.message)
+        })
 })
-
-const generateId = () => { 
-    const maxId = persons.length > 0
-        ? Math.max(...persons.map(person => person.id))
-        : 0
-    return maxId + 1
-}
 
 app.post('/api/persons/', (request, response) => {
     const body = request.body
-    const exists = persons.find(person => person.name.toLowerCase() === body.name.toLowerCase())
+    // const exists = persons.find(person => person.name.toLowerCase() === body.name.toLowerCase())
 
-    if (exists) { 
-        return response.status(409).json({
-            error: 'Name must be unique.'
-        })
-    }
+    // if (exists) { 
+    //     return response.status(409).json({
+    //         error: 'Name must be unique.'
+    //     })
+    // }
     if(!body.name) { 
         return response.status(400).json({
             error: 'Name missing.'
@@ -95,24 +70,25 @@ app.post('/api/persons/', (request, response) => {
         })
     }
 
-    const person = {
-        id: Math.floor(Math.random() * 2**50),
-        name: body.name,
+    const person = new Person({
+        name: body.name.toLowerCase(),
         number: body.number
-    }
-    persons = persons.concat(person)
-    return response.json(persons)
+    })
+
+    person.save().then(savedPerson => {
+        return response.json(savedPerson)
+    })
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    persons = persons.filter(person => person.id !== id)
-    return response.status(204).end()
-})
+// app.delete('/api/persons/:id', (request, response) => {
+//     const id = Number(request.params.id)
+//     persons = persons.filter(person => person.id !== id)
+//     return response.status(204).end()
+// })
 
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => { 
     console.log(`Server running on port ${PORT}`)
 })

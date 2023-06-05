@@ -1,4 +1,5 @@
-POST https://green-butterfly-628.fly.dev/api/persons
+# Back-end only
+POST http://localhost:3001/api/persons
 content-type: application/json
 
 {

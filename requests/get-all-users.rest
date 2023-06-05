@@ -1,1 +1,5 @@
+# Back-end only
+# GET http://localhost:3001/api/persons
+
+# Front-end
 GET https://green-butterfly-628.fly.dev/api/persons
