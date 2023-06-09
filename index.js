@@ -1,10 +1,10 @@
 // https://fullstackopen.com/en/part3/saving_data_to_mongo_db#connecting-the-backend-to-a-database
 // Exercises 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 3.11, 3.12, 3.13, 3.14
 
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors') 
-require('dotenv').config()
 
 const Person = require('./models/person')
 const app = express()
@@ -28,7 +28,7 @@ app.get('/info', (request, response) => {
         `<div>
             <p>Phonebook has info for ${persons.length} people</p>
             <p>${dateObject}</p>
-            <a href='http://localhost:3001/api/persons'>API</a>
+            <a href='/api/persons'>API</a>
         </div>`
     )
 })
